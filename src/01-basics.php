@@ -10,9 +10,32 @@
  * @return string
  * @throws InvalidArgumentException
  */
+
 function getMinuteQuarter(int $minute)
 {
+if ($minute >= 0 && $minute <= 14) {
+	echo('first');
 }
+if ($minute >= 15 && $minute <= 30) {
+	echo('second');
+}
+if ($minute >= 31 && $minute <= 45) {
+	echo('third');
+}
+if ($minute >= 46 && $minute <= 60) {
+	echo('fourth');  
+    
+}
+if($min<0 && $min>=61)
+	{
+		return InvalidArgumentException;
+		echo 'Ohibka';
+	}
+}
+getMinuteQuarter(10)
+//$min = 10;
+
+
 
 /**
  * The $year variable contains a year (i.e. 1995 or 2020 etc).
@@ -25,9 +48,21 @@ function getMinuteQuarter(int $minute)
  * @return boolean
  * @throws InvalidArgumentException
  */
-function isLeapYear(int $year)
+function isLeapYear(int $year )
 {
+    if( $year % 4 == 0 )
+        # Год високосный
+       echo 'True';
+    else
+        # Год не високосный
+       echo 'False';
+   if($year<1900)
+	{
+		return InvalidArgumentException;
+	}    
 }
+isLeapYear(2020)
+
 
 /**
  * The $input variable contains a string of six digits (like '123456' or '385934').
@@ -40,6 +75,26 @@ function isLeapYear(int $year)
  * @return boolean
  * @throws InvalidArgumentException
  */
-function isSumEqual(string $input)
-{
+$str='123456';
+$str1='385934'; 
+
+$str=(int)$str;
+$str1=(int)$str1;
+
+function isSumEqual(string $str){
+    $count= 0;
+    for($i=1;$i<6;$i++){
+        $str = (string)$i;
+        if(strlen($str)<6){
+            for($j=strlen($str);$j<6;$j++){
+                $str='0'.$str;
+            }
+        }
+        If($str[0]+$str[1]+$str[2] == $str[3]+$str[4]+$str[5]){  
+            $count++; echo 'Билет номер: '.$str.'<br>';
+        }
+    }
+//echo 'Количество счастливых билетов: '.$count;
 }
+echo isSumEqual($str1);
+

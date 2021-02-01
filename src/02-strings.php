@@ -7,9 +7,21 @@
  * @param  string  $input
  * @return string
  */
-function snakeCaseToCamelCase(string $input)
+function snakeCaseToCamelCase($string, $capitalizeFirstCharacter = false) 
 {
+
+    $str = str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
+
+    if (!$capitalizeFirstCharacter) {
+        $str[0] = strtolower($str[0]);
+    }
+
+    return $str;
 }
+
+echo snakeCaseToCamelCase('this_is_home_task');
+
+
 
 /**
  * The $input variable contains multibyte text like 'ФЫВА олдж'
@@ -19,9 +31,23 @@ function snakeCaseToCamelCase(string $input)
  * @param  string  $input
  * @return string
  */
-function mirrorMultibyteString(string $input)
-{
+
+function mirrorMultibyteString ($string, $encoding = null) {
+	if ($encoding === null) {
+		$encoding = mb_detect_encoding($string);
+	}
+
+	$length   = mb_strlen($string, $encoding);
+	$reversed = '';
+	while ($length-- > 0) {
+		$reversed .= mb_substr($string, $length, 1, $encoding);
+	}
+
+	return $reversed;
 }
+echo mirrorMultibyteString('ФЫВА олдж')
+
+
 
 /**
  * My friend wants a new band name for her band.
@@ -37,6 +63,16 @@ function mirrorMultibyteString(string $input)
  * @param  string  $noun
  * @return string
  */
-function getBrandName(string $noun)
-{
+function getBrandName(string $noun) {
+	
+	strLen = srtlen($noun);
+	if $noun[0] = $noun[strLen-1] {
+		return strings.Title($noun) + $noun[1:];
+	} else {
+		return "The " + strings.Title($noun);
+	}
+
 }
+
+
+getBrandName()
