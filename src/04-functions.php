@@ -69,5 +69,10 @@ function countArguments()
  */
 function countArgumentsWrapper()
 {
-    // put your code here
+    foreach (func_get_arg() as $arg){
+        if(!is_string($arg))
+            throw new InvalidArgumentException("Your output should not be a string");         
+
+    }
+    return countArguments();
 }

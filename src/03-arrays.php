@@ -8,8 +8,20 @@
  * @param  array  $input
  * @return array
  */
-function repeatArrayValues(array $input)
-{
+function repeatArrayValues(array $input) {
+    $arr = [];
+    foreach ($input as $value) {
+        $x = $value;
+        while ($x> 0) {
+            /*$x++;
+             *array_push($arr, $value);
+             */
+            $arr[] = $value;
+
+            $x--;
+        }
+    }
+    return $arr;
 }
 
 /**
@@ -20,8 +32,18 @@ function repeatArrayValues(array $input)
  * @param  array  $input
  * @return int
  */
-function getUniqueValue(array $input)
+function getUniqueValue(array $input): int
 {
+    $new_arr = [];
+    foreach ($input as $value) {
+        if (count(array_keys($input, $value)) === 1) {
+            array_push($new_arr, $value);
+        }
+    }
+    if (empty($new_arr)) {
+        return 0;
+    }
+    return min($new_arr);
 }
 
 /**
@@ -48,6 +70,18 @@ function getUniqueValue(array $input)
  * @param  array  $input
  * @return array
  */
-function groupByTag(array $input)
+function groupByTag(array $input): array
 {
+    array_multisort($input);
+    $arr=[];
+
+    foreach ($input as $value) {
+        foreach ($value['tags'] as $key => $tag_val) {
+            $arr[$tag_val][]=$value['name'];
+        }
+    }
+
+    ksort($arr);
+
+    return $arr;
 }
