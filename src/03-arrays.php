@@ -34,18 +34,12 @@ function repeatArrayValues(array $input) {
  */
 function getUniqueValue(array $input): int
 {
-    $new_arr = [];
-    foreach ($input as $value) {
-        if (count(array_keys($input, $value)) === 1) {
-            array_push($new_arr, $value);
-        }
-    }
-    if (empty($new_arr)) {
-        return 0;
-    }
-    return min($new_arr);
+    $arrCount = array_count_values($input);
+    $uniqArr = array_keys(array_filter($arrCount, function ($val) {
+        return $val == 1;
+    }))
+    return !empty($uniqArr) ? min($uniqArr) : 0;
 }
-
 /**
  * The $input variable contains an array of arrays
  * Each sub array has keys: name (contains strings), tags (contains array of strings)
@@ -70,13 +64,13 @@ function getUniqueValue(array $input): int
  * @param  array  $input
  * @return array
  */
-function groupByTag(array $input): array
+function groupByTag(array $input)
 {
     array_multisort($input);
     $arr=[];
 
     foreach ($input as $value) {
-        foreach ($value['tags'] as $key => $tag_val) {
+        foreach ($value['tags'] as $tag_val) {
             $arr[$tag_val][]=$value['name'];
         }
     }
