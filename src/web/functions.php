@@ -12,6 +12,30 @@
 function getUniqueFirstLetters(array $airports)
 {
     // put your logic here
+    $first_letters = [];
 
-    return ['A', 'B', 'C'];
+    foreach ($airports as $airport) {
+        $first_letters[] = substr($airport['name'], 0, 1);
+    }
+    $uniqLetters = array_unique($first_letters);
+    sort($uniqLetters);
+    return $uniqLetters;
+}
+
+function getUrl($getParametr, $parametr)
+{
+    $result = '';
+//    if (isset($_GET['page']) && $parametr == 'filter_name') $_GET['page'] = 1;
+    foreach ($getParametr as $key => $value) {
+        if ($key == $parametr) continue;
+
+        if ($parametr == 'filter_name' && $key == 'page'){
+            $result .= "$key=1&";
+        }else{
+            $result .= "$key=$value&";
+        }
+
+    }
+
+    return $result;
 }
