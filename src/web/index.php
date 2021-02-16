@@ -2,7 +2,7 @@
 require_once './functions.php';
 
 $airports = require './airports.php';
-$ch = 5;
+$pages = 5;
 
 // Filtering
 /**
@@ -28,25 +28,14 @@ if (isset($_GET['filter_name'])) {
  * and apply sorting
  * (see Sorting task below)
  */
-if (isset($_GET['filter_name'])) {
-    $result = [];
-
-    foreach ($airports as $airport) {
-        if (strtolower(substr($airport['name'], 0, 1)) === strtolower($_GET['filter_name'])) {
-            $result[] = $airport;
-        }
-    }
-
-    $airports = $result;
-}
 // Pagination
 /**
  * Here you need to check $_GET request if it has pagination key
  * and apply pagination logic
  * (see Pagination task below)
  */
-$total_data = floor(count($airports) / $ch);
-$last = ceil($total_data / $ch);
+$total_data = floor(count($airports) / $pages);
+$last = ceil($total_data / $pages);
 
 if ($last < 1) {
     $last = 1;
@@ -60,12 +49,12 @@ if (isset($_GET['page'])) {
 
 if (empty($_GET['page']) || $pagenum == 1) {
     $start_val = 0;
-//    $end_val = $ch - 1;
+//    $end_val = $pages - 1;
 } else {
-    $start_val = ($pagenum * $ch) - $ch;
-//    $end_val = $start_val + ($ch - 1);
+    $start_val = ($pagenum * $pages) - $pages;
+//    $end_val = $start_val + ($pages - 1);
 }
-$result = array_slice($airports, $start_val, $ch);
+$result = array_slice($airports, $start_val, $pages);
 
 $airports = $result;
 // This makes sure the page number isn't below 1, or more than our $last page
