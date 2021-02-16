@@ -7,21 +7,11 @@
  * @param  string  $input
  * @return string
  */
-function snakeCaseToCamelCase($string, $capitalizeFirstCharacter = false) 
+function snakeCaseToCamelCase(string $input)
 {
-
-    $str = str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
-
-    if (!$capitalizeFirstCharacter) {
-        $str[0] = strtolower($str[0]);
-    }
-
-    return $str;
+    $result =  lcfirst(str_replace('_', '', ucwords($input, '_')));
+    return $result;
 }
-
-echo snakeCaseToCamelCase('this_is_home_task');
-
-
 
 /**
  * The $input variable contains multibyte text like 'ФЫВА олдж'
@@ -31,23 +21,17 @@ echo snakeCaseToCamelCase('this_is_home_task');
  * @param  string  $input
  * @return string
  */
-
-function mirrorMultibyteString ($string, $encoding = null) {
-	if ($encoding === null) {
-		$encoding = mb_detect_encoding($string);
-	}
-
-	$length   = mb_strlen($string, $encoding);
-	$reversed = '';
-	while ($length-- > 0) {
-		$reversed .= mb_substr($string, $length, 1, $encoding);
-	}
-
-	return $reversed;
+function mirrorMultibyteString(string $input)
+{
+    $text_string = explode(' ', $input);
+    $words_array = [];
+    foreach ($text_string as $text) {
+        $text = array_reverse(preg_split("//u", $text, null));
+        $text = implode($text);
+        array_push($words_array, $text);
+    }
+    return implode(' ', $words_array);
 }
-echo mirrorMultibyteString('ФЫВА олдж')
-
-
 
 /**
  * My friend wants a new band name for her band.
@@ -63,16 +47,13 @@ echo mirrorMultibyteString('ФЫВА олдж')
  * @param  string  $noun
  * @return string
  */
-function getBrandName(string $noun) {
-	
-	strLen = srtlen($noun);
-	if $noun[0] = $noun[strLen-1] {
-		return strings.Title($noun) + $noun[1:];
-	} else {
-		return "The " + strings.Title($noun);
-	}
-
+function getBrandName(string $noun)
+{
+    $noun = strtolower($noun); 
+    if (substr($noun, 0, 1) === substr($noun, -1)) {
+        $result = ucwords($noun . substr($noun, 1));
+    } else {
+        $result = 'The ' . ucwords($noun);
+    }
+    return $result;
 }
-
-
-getBrandName()
