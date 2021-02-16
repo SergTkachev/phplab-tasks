@@ -66,16 +66,17 @@ function isLeapYear(int $year )
 {
     if( $year % 4 == 0 )
         # Год високосный
-       echo 'True';
+       return True;
     else
         # Год не високосный
-       echo 'False';
+       return False;
    if($year<1900)
 	{
-		return InvalidArgumentException;
-	}    
+		throw new InvalidArgumentException('Not Correct year'.$year);
+	}  
+    return checkdate(02,29, $year);  
 }
-isLeapYear(2020)
+
 
 
 /**
@@ -114,11 +115,7 @@ function isSumEqual(string $input) {
     }
 
 
-    if($val1 == $val2) {
-        return true;
-    } else {
-        return false;
-    }
+    if($val1 == $val2) return $val1 == $val2;
 }
 
 try{
