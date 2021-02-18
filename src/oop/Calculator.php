@@ -2,6 +2,7 @@
 
 namespace src\oop;
 
+use phpDocumentor\Reflection\Types\This;
 use src\oop\Commands\CommandInterface;
 
 class Calculator
@@ -128,6 +129,13 @@ class Calculator
     {
         // TODO implement undo logic here
 
+        if ($this->intents) {
+            array_pop($this->intents);
+        }
+        if (count($this->intents) > 0) {
+            $this->intents[array_key_last($this->intents)]['undo'] = true;
+        }
+
         return $this;
     }
 
@@ -139,6 +147,14 @@ class Calculator
     public function replay()
     {
         // TODO implement replay logic here
+
+        if (count($this->intents) > 0) {
+            if (array_key_exists('undo', $this->intents[array_key_last($this->intents)])) {
+               $this->undo();
+            } else {
+                $this->intents[] = $this->intents[array_key_last($this->intents)];
+            }
+        }
 
         return $this;
     }
