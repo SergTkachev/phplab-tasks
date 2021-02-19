@@ -3,12 +3,17 @@
  * Connect to DB
  */
 
-/**
+$func = require_once './function.php';
+$filter = [];
+$chank = 5;
+
+    /**
  * SELECT the list of unique first letters using https://www.w3resource.com/mysql/string-functions/mysql-left-function.php
  * and https://www.w3resource.com/sql/select-statement/queries-with-distinct.php
  * and set the result to $uniqueFirstLetters variable
  */
-$uniqueFirstLetters = ['A', 'B', 'C'];
+
+$uniqueFirstLetters = $func['uniqFL'];
 
 // Filtering
 /**
@@ -20,6 +25,9 @@ $uniqueFirstLetters = ['A', 'B', 'C'];
  * For filtering by state you will need to JOIN states table and check if states.name = A
  * where A - requested filter value
  */
+if (isset($_GET['filter_name'])) {
+    $filter['filter_name'] = $_GET['filter_name'];
+}
 
 // Sorting
 /**
@@ -30,7 +38,9 @@ $uniqueFirstLetters = ['A', 'B', 'C'];
  * For sorting use ORDER BY A
  * where A - requested filter value
  */
-
+if (isset($_GET['sort'])) {
+    $filter['sort'] = $_GET['sort'];
+}
 // Pagination
 /**
  * Here you need to check $_GET request if it has pagination key
@@ -40,6 +50,20 @@ $uniqueFirstLetters = ['A', 'B', 'C'];
  * For pagination use LIMIT
  * To get the number of all airports matched by filter use COUNT(*) in the SELECT statement with all filters applied
  */
+// Establish the $pagenum variable
+$pagenum = 1;
+// Get pagenum from URL vars if it is present, else it is = 1
+if (isset($_GET['page'])) {
+    $pagenum = preg_replace('#[^0-9]#', '', $_GET['page']);
+}
+
+if (empty($_GET['page']) || $pagenum == 1) {
+    $start_val = 0;
+} else {
+    $start_val = ($pagenum * $chank) - $chank;
+}
+$filter['start'] = $start_val;
+$filter['limit'] = $chank;
 
 /**
  * Build a SELECT query to DB with all filters / sorting / pagination
@@ -47,7 +71,60 @@ $uniqueFirstLetters = ['A', 'B', 'C'];
  *
  * For city_name and state_name fields you can use alias https://www.mysqltutorial.org/mysql-alias/
  */
-$airports = [];
+$airports = $func['query']($filter);
+
+$page = $_GET['page'] ?: 1;
+
+$result = $func['count']($filter);
+$page = intval($page);
+
+
+$total_data = floor($result / $chank);
+
+$last = ceil($total_data / $chank);
+
+if ($last < 1) {
+    $last = 1;
+}
+// This makes sure the page number isn't below 1, or more than our $last page
+if ($pagenum < 1) {
+    $pagenum = 1;
+} elseif ($pagenum > $last) {
+    $pagenum = $last;
+}
+// Establish the $paginationCtrls variable
+$paginationCtrls = '';
+
+if ($last != 1) {
+    $url = $func['getUrl']($_GET, 'page');
+    /* First we check if we are on page one. If we are then we don't need a link to
+       the previous page or the first page so we do nothing. If we aren't then we
+       generate links to the first page, and to the previous page. */
+    if ($pagenum > 1) {
+        $previous = $pagenum - 1;
+        $paginationCtrls .= '<li class="page-item"><a class="page-link" href="?' . $url . 'page=' . $previous . '">Previous</a> </li>&nbsp; &nbsp; ';
+        // Render clickable number links that should appear on the left of the target page number
+        for ($i = $pagenum - 4; $i < $pagenum; $i++) {
+            if ($i > 0) {
+                $paginationCtrls .= '<li class="page-item"><a class="page-link" href="?' . $url . 'page=' . $i . '">' . $i . '</a> </li>&nbsp; ';
+            }
+        }
+    }
+    // Render the target page number, but without it being a link
+    $paginationCtrls .= '<li class="page-item active"><a class="page-link" href="#">' . $pagenum . '</a></li>';
+    // Render clickable number links that should appear on the right of the target page number
+    for ($i = $pagenum + 1; $i <= $last; $i++) {
+        $paginationCtrls .= '<li class="page-item"><a class="page-link" href="?' . $url . 'page=' . $i . '">' . $i . '</a> </li>&nbsp; ';
+        if ($i >= $pagenum + 4) {
+            break;
+        }
+    }
+    // This does the same as above, only checking if we are on the last page, and then generating the "Next"
+    if ($pagenum != $last) {
+        $next = $pagenum + 1;
+        $paginationCtrls .= ' &nbsp; &nbsp;  <li class="page-item"><a class="page-link" href="?' . $url . 'page=' . $next . '">Next</a></li>';
+    }
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -78,10 +155,14 @@ $airports = [];
         Filter by first letter:
 
         <?php foreach ($uniqueFirstLetters as $letter): ?>
-            <a href="#"><?= $letter ?></a>
+            <?php if (!empty($_GET)) : ?>
+                <a href="?<?= $func['getUrl']($_GET, "filter_name"); ?>filter_name=<?= $letter ?>"><?= $letter ?></a>
+            <?php else: ?>
+                <a href="?filter_name=<?= $letter ?>"><?= $letter ?></a>
+            <?php endif; ?>
         <?php endforeach; ?>
 
-        <a href="/" class="float-right">Reset all filters</a>
+        <a href="/src/db/" class="float-right">Reset all filters</a>
     </div>
 
     <!--
@@ -97,12 +178,17 @@ $airports = [];
     <table class="table">
         <thead>
         <tr>
-            <th scope="col"><a href="#">Name</a></th>
-            <th scope="col"><a href="#">Code</a></th>
-            <th scope="col"><a href="#">State</a></th>
-            <th scope="col"><a href="#">City</a></th>
-            <th scope="col">Address</th>
-            <th scope="col">Timezone</th>
+            <?php if (!empty($_GET)) : ?>
+                <th scope="col"><a href="?<?= $func['getUrl']($_GET, "sort"); ?>sort=a.name">Name</a></th>
+                <th scope="col"><a href="?<?= $func['getUrl']($_GET, "sort"); ?>sort=a.code">Code</a></th>
+                <th scope="col"><a href="?<?= $func['getUrl']($_GET, "sort"); ?>sort=s.name">State</a></th>
+                <th scope="col"><a href="?<?= $func['getUrl']($_GET, "sort"); ?>sort=c.name">City</a></th>
+            <?php else: ?>
+                <th scope="col"><a href="?sort=a.name">Name</a></th>
+                <th scope="col"><a href="?sort=a.code">Code</a></th>
+                <th scope="col"><a href="?sort=s.name">State</a></th>
+                <th scope="col"><a href="?sort=c.name">City</a></th>
+            <?php endif; ?>
         </tr>
         </thead>
         <tbody>
@@ -120,7 +206,7 @@ $airports = [];
         <tr>
             <td><?= $airport['name'] ?></td>
             <td><?= $airport['code'] ?></td>
-            <td><a href="#"><?= $airport['state_name'] ?></a></td>
+            <td><?= $airport['state_name'] ?></td>
             <td><?= $airport['city_name'] ?></td>
             <td><?= $airport['address'] ?></td>
             <td><?= $airport['timezone'] ?></td>
@@ -140,9 +226,7 @@ $airports = [];
     -->
     <nav aria-label="Navigation">
         <ul class="pagination justify-content-center">
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <?= $paginationCtrls; ?>
         </ul>
     </nav>
 
